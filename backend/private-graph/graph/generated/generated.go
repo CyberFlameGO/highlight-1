@@ -495,7 +495,6 @@ type ComplexityRoot struct {
 		LogAttributes func(childComplexity int) int
 		SeverityText  func(childComplexity int) int
 		Timestamp     func(childComplexity int) int
-		UUID          func(childComplexity int) int
 	}
 
 	LogEdge struct {
@@ -3344,13 +3343,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Log.Timestamp(childComplexity), true
-
-	case "Log.uuid":
-		if e.complexity.Log.UUID == nil {
-			break
-		}
-
-		return e.complexity.Log.UUID(childComplexity), true
 
 	case "LogEdge.cursor":
 		if e.complexity.LogEdge.Cursor == nil {
@@ -8040,7 +8032,6 @@ type S3File {
 
 type Log {
 	timestamp: Timestamp!
-	uuid: String!
 	severityText: SeverityText!
 	body: String!
 	logAttributes: Map!
@@ -26716,50 +26707,6 @@ func (ec *executionContext) fieldContext_Log_timestamp(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Log_uuid(ctx context.Context, field graphql.CollectedField, obj *model.Log) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Log_uuid(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UUID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Log_uuid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Log",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Log_severityText(ctx context.Context, field graphql.CollectedField, obj *model.Log) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Log_severityText(ctx, field)
 	if err != nil {
@@ -26977,8 +26924,6 @@ func (ec *executionContext) fieldContext_LogEdge_node(ctx context.Context, field
 			switch field.Name {
 			case "timestamp":
 				return ec.fieldContext_Log_timestamp(ctx, field)
-			case "uuid":
-				return ec.fieldContext_Log_uuid(ctx, field)
 			case "severityText":
 				return ec.fieldContext_Log_severityText(ctx, field)
 			case "body":
@@ -57640,13 +57585,6 @@ func (ec *executionContext) _Log(ctx context.Context, sel ast.SelectionSet, obj 
 		case "timestamp":
 
 			out.Values[i] = ec._Log_timestamp(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "uuid":
-
-			out.Values[i] = ec._Log_uuid(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

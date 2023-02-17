@@ -353,7 +353,6 @@ type LinearTeam struct {
 
 type Log struct {
 	Timestamp     time.Time              `json:"timestamp"`
-	UUID          string                 `json:"uuid"`
 	SeverityText  SeverityText           `json:"severityText"`
 	Body          string                 `json:"body"`
 	LogAttributes map[string]interface{} `json:"logAttributes"`

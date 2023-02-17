@@ -496,7 +496,6 @@ type S3File {
 
 type Log {
 	timestamp: Timestamp!
-	uuid: String!
 	severityText: SeverityText!
 	body: String!
 	logAttributes: Map!
