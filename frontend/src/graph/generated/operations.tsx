@@ -3938,12 +3938,24 @@ export type GetLogsQueryVariables = Types.Exact<{
 }>
 
 export type GetLogsQuery = { __typename?: 'Query' } & {
-	logs: Array<
-		{ __typename?: 'LogLine' } & Pick<
-			Types.LogLine,
-			'timestamp' | 'severityText' | 'body' | 'logAttributes'
+	logs: { __typename?: 'LogsPayload' } & {
+		edges: Array<
+			{ __typename?: 'LogEdge' } & Pick<Types.LogEdge, 'cursor'> & {
+					node: { __typename?: 'Log' } & Pick<
+						Types.Log,
+						| 'timestamp'
+						| 'uuid'
+						| 'severityText'
+						| 'body'
+						| 'logAttributes'
+					>
+				}
 		>
-	>
+		pageInfo: { __typename?: 'PageInfo' } & Pick<
+			Types.PageInfo,
+			'hasNextPage'
+		>
+	}
 }
 
 export type GetLogsTotalCountQueryVariables = Types.Exact<{

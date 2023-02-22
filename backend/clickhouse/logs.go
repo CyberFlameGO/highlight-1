@@ -7,12 +7,14 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	modelInputs "github.com/highlight-run/highlight/backend/private-graph/graph/model"
 	e "github.com/pkg/errors"
 )
 
 type LogRow struct {
 	Timestamp          time.Time
+	UUID               string
 	TraceId            string
 	SpanId             string
 	TraceFlags         uint32
@@ -34,6 +36,7 @@ func (client *Client) BatchWriteLogRows(ctx context.Context, logRows []*LogRow) 
 	}
 
 	for _, logRow := range logRows {
+		logRow.UUID = uuid.New().String()
 		err = batch.AppendStruct(logRow)
 		if err != nil {
 			return err
@@ -42,6 +45,7 @@ func (client *Client) BatchWriteLogRows(ctx context.Context, logRows []*LogRow) 
 	return batch.Send()
 }
 
+<<<<<<< HEAD
 func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelInputs.LogsParamsInput) ([]*modelInputs.LogLine, error) {
 	query := makeSelectQuery("Timestamp, SeverityText, Body, LogAttributes", projectID, params)
 	query = query.Limit(100)
@@ -50,6 +54,17 @@ func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelI
 	if err != nil {
 		return nil, err
 	}
+=======
+const LOG_LIMIT = 100
+
+func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelInputs.LogsParamsInput) (*modelInputs.LogsPayload, error) {
+	whereClause := buildWhereClause(projectID, params)
+
+	query := fmt.Sprintf(`
+		SELECT Timestamp, UUID, SeverityText, Body, LogAttributes FROM logs %s LIMIT %d`, whereClause, LOG_LIMIT+1)
+
+	log.WithContext(ctx).Info(query)
+>>>>>>> a76ec3c19 (wire up cursor pagination for logs page)
 
 	rows, err := client.conn.Query(
 		ctx,
@@ -61,16 +76,17 @@ func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelI
 		return nil, err
 	}
 
-	logLines := []*modelInputs.LogLine{}
+	logs := []*modelInputs.LogEdge{}
 
 	for rows.Next() {
 		var (
 			Timestamp     time.Time
+			UUID          string
 			SeverityText  string
 			Body          string
 			LogAttributes map[string]string
 		)
-		if err := rows.Scan(&Timestamp, &SeverityText, &Body, &LogAttributes); err != nil {
+		if err := rows.Scan(&Timestamp, &UUID, &SeverityText, &Body, &LogAttributes); err != nil {
 			return nil, err
 		}
 
@@ -79,15 +95,19 @@ func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelI
 			gqlLogAttributes[i] = v
 		}
 
-		logLines = append(logLines, &modelInputs.LogLine{
-			Timestamp:     Timestamp,
-			SeverityText:  makeSeverityText(SeverityText),
-			Body:          Body,
-			LogAttributes: gqlLogAttributes,
+		logs = append(logs, &modelInputs.LogEdge{
+			Cursor: encodeCursor(Timestamp, UUID),
+			Node: &modelInputs.Log{
+				Timestamp:     Timestamp,
+				SeverityText:  makeSeverityText(SeverityText),
+				Body:          Body,
+				LogAttributes: gqlLogAttributes,
+			},
 		})
 	}
 	rows.Close()
-	return logLines, rows.Err()
+
+	return getLogsPayload(logs), rows.Err()
 }
 
 func (client *Client) ReadLogsTotalCount(ctx context.Context, projectID int, params modelInputs.LogsParamsInput) (uint64, error) {

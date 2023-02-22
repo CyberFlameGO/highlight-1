@@ -39,7 +39,7 @@ const LogsTable = ({ data, loading, query }: Props) => {
 	const columns = React.useMemo<ColumnDef<LogLine>[]>(
 		() => [
 			{
-				accessorKey: 'timestamp',
+				accessorKey: 'node.timestamp',
 				cell: ({ row, getValue }) => (
 					<>
 						{row.getCanExpand() && (
@@ -61,13 +61,13 @@ const LogsTable = ({ data, loading, query }: Props) => {
 				),
 			},
 			{
-				accessorKey: 'severityText',
+				accessorKey: 'node.severityText',
 				cell: ({ getValue }) => (
 					<LogSeverityText severityText={getValue() as string} />
 				),
 			},
 			{
-				accessorKey: 'body',
+				accessorKey: 'node.body',
 				cell: ({ getValue }) => (
 					<LogBody query={query} body={getValue() as string} />
 				),
@@ -78,8 +78,8 @@ const LogsTable = ({ data, loading, query }: Props) => {
 
 	let logs: LogLine[] = []
 
-	if (data?.logs) {
-		logs = data.logs
+	if (data?.logs?.edges) {
+		logs = data.logs.edges
 	}
 
 	const table = useReactTable({
