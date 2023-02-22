@@ -3943,11 +3943,7 @@ export type GetLogsQuery = { __typename?: 'Query' } & {
 			{ __typename?: 'LogEdge' } & Pick<Types.LogEdge, 'cursor'> & {
 					node: { __typename?: 'Log' } & Pick<
 						Types.Log,
-						| 'timestamp'
-						| 'uuid'
-						| 'severityText'
-						| 'body'
-						| 'logAttributes'
+						'timestamp' | 'severityText' | 'body' | 'logAttributes'
 					>
 				}
 		>

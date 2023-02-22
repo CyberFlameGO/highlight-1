@@ -661,7 +661,6 @@ export type Log = {
 	logAttributes: Scalars['Map']
 	severityText: SeverityText
 	timestamp: Scalars['Timestamp']
-	uuid: Scalars['String']
 }
 
 export type LogEdge = {

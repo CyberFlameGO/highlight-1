@@ -11,10 +11,10 @@ import (
 )
 
 func getLogsPayload(logs []*modelInputs.LogEdge) *modelInputs.LogsPayload {
-	hasNextPage := len(logs) == LOG_LIMIT+1
+	hasNextPage := len(logs) == 100+1
 
 	if hasNextPage {
-		logs = logs[:LOG_LIMIT]
+		logs = logs[:100]
 	}
 
 	return &modelInputs.LogsPayload{

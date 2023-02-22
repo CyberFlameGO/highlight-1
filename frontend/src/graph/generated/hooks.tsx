@@ -11437,7 +11437,6 @@ export const GetLogsDocument = gql`
 				cursor
 				node {
 					timestamp
-					uuid
 					severityText
 					body
 					logAttributes
