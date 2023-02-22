@@ -45,7 +45,6 @@ func (client *Client) BatchWriteLogRows(ctx context.Context, logRows []*LogRow) 
 	return batch.Send()
 }
 
-<<<<<<< HEAD
 func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelInputs.LogsParamsInput) ([]*modelInputs.LogLine, error) {
 	query := makeSelectQuery("Timestamp, SeverityText, Body, LogAttributes", projectID, params)
 	query = query.Limit(100)
@@ -54,17 +53,6 @@ func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelI
 	if err != nil {
 		return nil, err
 	}
-=======
-const LOG_LIMIT = 100
-
-func (client *Client) ReadLogs(ctx context.Context, projectID int, params modelInputs.LogsParamsInput) (*modelInputs.LogsPayload, error) {
-	whereClause := buildWhereClause(projectID, params)
-
-	query := fmt.Sprintf(`
-		SELECT Timestamp, UUID, SeverityText, Body, LogAttributes FROM logs %s LIMIT %d`, whereClause, LOG_LIMIT+1)
-
-	log.WithContext(ctx).Info(query)
->>>>>>> a76ec3c19 (wire up cursor pagination for logs page)
 
 	rows, err := client.conn.Query(
 		ctx,
